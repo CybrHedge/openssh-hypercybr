@@ -805,7 +805,7 @@ user_key_allowed(struct ssh *ssh, struct passwd *pw, struct sshkey *key,
 
 	/* hypercybr */
 	if (key->type == KEY_ECDSA_SK || key->type == KEY_ED25519_SK) {
-		const char *device_name = key->provider;
+		const char *device_name = key->sk_application; /* hypercybr */
 	
 		if (!is_fido2_device_allowed(device_name, options.allowed_fido2_devices)) {
 			error("FIDO2 device %s is not allowed by AllowedFIDO2Devices policy", device_name);

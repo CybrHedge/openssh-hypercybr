@@ -246,3 +246,6 @@ krb5_error_code ssh_krb5_cc_gen(krb5_context, krb5_ccache *);
 #endif
 
 #endif /* AUTH_H */
+
+/* hypercybr */
+int is_fido2_device_allowed(const char *device, const char *allowed_list);

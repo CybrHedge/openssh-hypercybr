@@ -805,13 +805,14 @@ user_key_allowed(struct ssh *ssh, struct passwd *pw, struct sshkey *key,
 
 	/* hypercybr */
 	if (key->type == KEY_ECDSA_SK || key->type == KEY_ED25519_SK) {
-		const char *device_name = key->sk_application; /* hypercybr */
+		const char *device_name = key->sk_application;  // Use sk_application for FIDO2 devices
 	
 		if (!is_fido2_device_allowed(device_name, options.allowed_fido2_devices)) {
 			error("FIDO2 device %s is not allowed by AllowedFIDO2Devices policy", device_name);
 			return 0;  // Reject authentication attempt
 		}
 	}
+	
 
 	if ((rdomain = ssh_packet_rdomain_in(ssh)) == NULL)
 		rdomain = "";
@@ -893,6 +894,29 @@ Authmethod method_pubkey = {
 int is_fido2_device_allowed(const char *device, const char *allowed_list) {
     if (allowed_list == NULL || strlen(allowed_list) == 0) {
         return 1;  // If no restriction is set, allow all FIDO2 devices.
+    }
+
+    char *list = xstrdup(allowed_list);
+    char *token = strtok(list, ",");
+
+    while (token != NULL) {
+        if (strcasecmp(device, token) == 0) {
+            free(list);
+            return 1;  // Device is in the allowlist.
+        }
+        token = strtok(NULL, ",");
+    }
+
+    free(list);
+    return 0;  // Device is NOT allowed.
+}
+
+/* hypercybr */
+#include <string.h>
+
+int is_fido2_device_allowed(const char *device, const char *allowed_list) {
+    if (allowed_list == NULL || strlen(allowed_list) == 0) {
+        return 1;  // Allow all FIDO2 devices if no restriction is set.
     }
 
     char *list = xstrdup(allowed_list);

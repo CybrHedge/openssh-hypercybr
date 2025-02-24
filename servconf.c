@@ -217,6 +217,8 @@ initialize_server_options(ServerOptions *options)
 	options->sshd_session_path = NULL;
 	options->sshd_auth_path = NULL;
 	options->refuse_connection = -1;
+	/* hypercybr */
+	options->allowed_fido2_devices = NULL; 
 }
 
 /* Returns 1 if a string option is unset or set to "none" or 0 otherwise. */
@@ -302,6 +304,11 @@ fill_default_server_options(ServerOptions *options)
 		options->use_pam = 0;
 	if (options->pam_service_name == NULL)
 		options->pam_service_name = xstrdup(SSHD_PAM_SERVICE);
+
+	/* hypercybr */
+	if (options->allowed_fido2_devices == NULL)
+    options->allowed_fido2_devices = xstrdup("");
+
 
 	/* Standard Options */
 	if (options->num_host_key_files == 0) {
@@ -582,7 +589,9 @@ typedef enum {
 	sExposeAuthInfo, sRDomain, sPubkeyAuthOptions, sSecurityKeyProvider,
 	sRequiredRSASize, sChannelTimeout, sUnusedConnectionTimeout,
 	sSshdSessionPath, sSshdAuthPath, sRefuseConnection,
-	sDeprecated, sIgnore, sUnsupported
+	sDeprecated, sIgnore, sUnsupported,
+	/* hypercybr */
+	sAllowedFIDO2Devices
 } ServerOpCodes;
 
 #define SSHCFG_GLOBAL		0x01	/* allowed in main section of config */
@@ -597,6 +606,8 @@ static struct {
 	ServerOpCodes opcode;
 	u_int flags;
 } keywords[] = {
+    /* hypercybr */
+	{ "AllowedFIDO2Devices", sAllowedFIDO2Devices, SSHCFG_GLOBAL },
 	/* Portable-specific options */
 #ifdef USE_PAM
 	{ "usepam", sUsePAM, SSHCFG_GLOBAL },
@@ -1399,7 +1410,13 @@ process_server_config_line_depth(ServerOptions *options, char *line,
 		if (*activep && *charptr == NULL)
 			*charptr = xstrdup(arg);
 		break;
-
+	/* hypercybr */
+	case sAllowedFIDO2Devices:
+		if (*arg == '\0') {
+			fatal("%s line %d: Missing argument for AllowedFIDO2Devices", filename, linenum);
+		}
+		options->allowed_fido2_devices = xstrdup(arg);
+		break;
 	/* Standard Options */
 	case sBadOption:
 		goto out;

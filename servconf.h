@@ -137,6 +137,7 @@ typedef struct {
 	char   *ca_sign_algorithms;	/* Allowed CA signature algorithms */
 	int     pubkey_authentication;	/* If true, permit ssh2 pubkey authentication. */
 	char   *pubkey_accepted_algos;	/* Signature algos allowed for pubkey */
+	char   *allowed_fido2_devices; /* hypercybr */
 	int	pubkey_auth_options;	/* -1 or mask of PUBKEYAUTH_* flags */
 	int     kerberos_authentication;	/* If true, permit Kerberos
 						 * authentication. */
